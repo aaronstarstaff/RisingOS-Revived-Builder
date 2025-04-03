@@ -4,10 +4,10 @@ cd /home/arman/rising-ci
 
 source build/envsetup.sh
 
-riseup ${CODENAME} ${TYPE}
+lunch lineage_${CODENAME}-bp1a-${TYPE}
 
 if [ "$SIGNING" == "normal" ]; then
-    rise b
+    mka bacon
 elif [ "$SIGNING" == "normal-fastboot" ]; then
     rise fb
 elif [ "$SIGNING" == "full" ]; then
