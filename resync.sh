@@ -5,7 +5,7 @@ set -euo pipefail
 WORKDIR="/home/sketu/rising"
 OUTPUT_FILE="/tmp/repo_sync_output.txt"
 DELETED_REPOS_FILE="$WORKDIR/deleted_repositories.txt"
-STABLE_REPO_URL="https://github.com/RisingTechOSS/android"
+STABLE_REPO_URL="https://github.com/RisingOS-Revived/android"
 STAGING_REPO_URL="https://github.com/RisingOS-staging/android"
 
 log() {

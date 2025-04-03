@@ -143,13 +143,13 @@ function clone_and_check_dependencies {
 }
 
 function main {
-  local primary_repo_url="https://github.com/RisingOSS-devices/android_device_${BRAND}_${CODENAME}.git"
+  local primary_repo_url="https://github.com/RisingOS-Revived-devices/device_${BRAND}_${CODENAME}.git"
   local fallback_repo_url="https://github.com/LineageOS/android_device_${BRAND}_${CODENAME}.git"
 
   if repo_exists "$primary_repo_url"; then
     clone_and_check_dependencies "$primary_repo_url" "device/$BRAND/$CODENAME"
   else
-    echo "Warning: Repository not found in RisingOSS-devices ($primary_repo_url). Cloning from LineageOS."
+    echo "Warning: Repository not found in RisingOS-Revived-devices ($primary_repo_url). Cloning from LineageOS."
     if repo_exists "$fallback_repo_url"; then
       clone_and_check_dependencies "$fallback_repo_url" "device/$BRAND/$CODENAME"
     else

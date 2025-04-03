@@ -1,4 +1,4 @@
-name: RisingOS Builder
+name: RisingOS Revived Builder
 
 on:
   workflow_dispatch:
