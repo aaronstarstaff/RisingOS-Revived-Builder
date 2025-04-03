@@ -6,7 +6,6 @@ WORKDIR="/home/arman/rising-ci"
 OUTPUT_FILE="/tmp/repo_sync_output.txt"
 DELETED_REPOS_FILE="$WORKDIR/deleted_repositories.txt"
 STABLE_REPO_URL="https://github.com/RisingOS-Revived/android"
-STAGING_REPO_URL="https://github.com/RisingOS-staging/android"
 
 log() {
     echo "$1" | tee -a "$OUTPUT_FILE"
@@ -22,13 +21,6 @@ update_repo_tool() {
 
 init_repo() {
     local init_url="$STABLE_REPO_URL"
-    
-    if [[ "${RELEASE:-}" == "test" ]]; then
-        init_url="$STAGING_REPO_URL"
-        log "Cloning staging source"
-    else
-        log "Cloning stable source"
-    fi
 
     repo init -u "$init_url" -b fifteen --git-lfs --depth=1 >> "$OUTPUT_FILE" 2>&1 || {
         log "Error: repo init failed. Check $OUTPUT_FILE for details."

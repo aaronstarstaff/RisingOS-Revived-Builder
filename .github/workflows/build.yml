@@ -33,7 +33,6 @@ on:
         default: 'stable'
         type: choice
         options:
-          - 'test'
           - 'stable'
       VARIANT:
         description: 'If you wanna build other variants like vanilla, core or gapps.'
@@ -56,7 +55,8 @@ jobs:
   check-limit:
     runs-on: ubuntu-latest
     outputs:
-      staging: ${{ steps.get_role.outputs.is_staging_member }}
+      authorized: ${{ steps.check_user.outputs.authorized }}
+      core: ${{ steps.check_user.outputs.core }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,9 +64,21 @@ jobs:
       - name: Check User Authorization
         id: check_user
         run: |
-          AUTHORIZED_USERS=$(cat authorized_users.txt)
-          if echo "$AUTHORIZED_USERS" | grep -q "${{ github.actor }}"; then
+          if [[ ! -f "authorized_users.json" ]]; then
+            echo "authorized_users.json not found"
+            exit 1
+          fi
+
+          # Check for authorization (plain username or CORE:username)
+          if jq -e "index(\"${{ github.actor }}\")" authorized_users.json > /dev/null || jq -e "index(\"CORE:${{ github.actor }}\")" authorized_users.json > /dev/null; then
             echo "authorized=true" >> $GITHUB_OUTPUT
+
+            # Check for core status (CORE:username)
+            if jq -e "index(\"CORE:${{ github.actor }}\")" authorized_users.json > /dev/null; then
+              echo "core=true" >> $GITHUB_OUTPUT
+            else
+              echo "core=false" >> $GITHUB_OUTPUT
+            fi
           else
             echo "authorized=false" >> $GITHUB_OUTPUT
             echo "User ${{ github.actor }} is not authorized to trigger this build."
@@ -75,7 +87,9 @@ jobs:
 
       - name: Check Builds Limit
         id: check_limit
+        if: ${{ steps.check_user.outputs.authorized == 'true' }}
         run: |
+          echo "Debugging: core output is: '${{ steps.check_user.outputs.core }}'"
           COUNTER_FILE=".github/workflow_counter.json"
           CURRENT_DATE=$(date +%Y-%m-%d)
           DEVICE=${{ inputs.CODENAME }}
@@ -93,12 +107,10 @@ jobs:
 
           echo "Today's runs for device $DEVICE: $TODAY_RUNS"
 
-          if [[ "${{ env.is_owner }}" == "true" ]]; then
-            LIMIT=-1
-          elif [[ "${{ env.is_staging_member }}" == "true" ]]; then
-            LIMIT=5
+          if [[ "${{ steps.check_user.outputs.core }}" == "true" ]]; then
+            LIMIT=-1  # Core users have no limit
           else
-            LIMIT=3
+            LIMIT=3  # Non-core users have a limit of 3 runs
           fi
 
           if [[ $LIMIT -ne -1 && "$TODAY_RUNS" -ge $LIMIT ]]; then
@@ -113,6 +125,7 @@ jobs:
           echo "Updated run count for device $DEVICE: $NEW_RUNS"
 
       - name: Commit and push counter update
+        if: ${{ steps.check_limit.outcome == 'success' }}
         run: |
           COUNTER_FILE=".github/workflow_counter.json"
           git config --global user.email "actions@github.com"
@@ -120,10 +133,10 @@ jobs:
           git add $COUNTER_FILE
           git commit -m "Update workflow run count for device ${{ inputs.CODENAME }}"
           git push
-        if: steps.check_limit.outcome == 'success'
 
   build:
     needs: check-limit
+    if: ${{ needs.check-limit.outputs.authorized == 'true' }}
     runs-on: self-hosted
     env:
       USER: sketu
@@ -133,7 +146,6 @@ jobs:
       TYPE: ${{ inputs.TYPE }}
       RELEASE: ${{ inputs.RELEASE }}
       VARIANT: ${{ inputs.VARIANT }}
-      STAGING: ${{ needs.check-limit.outputs.staging }}
       SF_HOST: ${{ secrets.SF_HOST }}
       SF_USERNAME: ${{ secrets.SF_USERNAME }}
       SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
@@ -154,20 +166,20 @@ jobs:
 
       - name: Build RisingOS
         run: bash build.sh
-            
+
       - name: Upload Error Log
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: error-log
-          path: /media/shan_rakh/Manifesto/risingOS/out/error.log
+          path: out/error.log
 
       - name: Upload Build JSON
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: build-json
-          path: /media/shan_rakh/Manifesto/risingOS/out/target/product/*/*${{ inputs.CODENAME }}.json
+          path: out/target/product/*/*${{ inputs.CODENAME }}.json
 
       - name: Upload Build Files
         run: bash upload.sh
@@ -175,3 +187,4 @@ jobs:
       - name: Post-Cleanup
         if: ${{ always() }}
         run: bash clean.sh
+
