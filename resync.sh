@@ -19,14 +19,14 @@ update_repo_tool() {
     fi
 }
 
-init_repo() {
-    local init_url="$STABLE_REPO_URL"
-
-    repo init -u "$init_url" -b fifteen --git-lfs --depth=1 >> "$OUTPUT_FILE" 2>&1 || {
-        log "Error: repo init failed. Check $OUTPUT_FILE for details."
-        exit 1
-    }
-}
+#init_repo() {
+#    local init_url="$STABLE_REPO_URL"
+#
+#    repo init -u "$init_url" -b fifteen --git-lfs --depth=1 >> "$OUTPUT_FILE" 2>&1 || {
+#        log "Error: repo init failed. Check $OUTPUT_FILE for details."
+#        exit 1
+#    }
+#}
 
 sync_repos() {
     log "Syncing repositories..."
@@ -68,7 +68,7 @@ main() {
     rm -f "$DELETED_REPOS_FILE"
 
     #update_repo_tool
-    init_repo
+#    init_repo
     perform_sync
 
     if [ -f "$DELETED_REPOS_FILE" ]; then
