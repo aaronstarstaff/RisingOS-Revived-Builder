@@ -47,6 +47,6 @@ process_file() {
     fi
 }
 
-find "/home/sketu/rising/device/$BRAND/$CODENAME" -name "lineage_$CODENAME.mk" | while read -r file; do
+find "/home/arman/rising-ci/device/$BRAND/$CODENAME" -name "lineage_$CODENAME.mk" | while read -r file; do
     process_file "$file"
 done

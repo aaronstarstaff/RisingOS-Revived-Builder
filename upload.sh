@@ -34,7 +34,7 @@ else
     DESTINATION="drive"
 fi
 
-TARGET_DIR="/home/sketu/rising/out/target/product/${CODENAME}"
+TARGET_DIR="/home/arman/rising-ci/out/target/product/${CODENAME}"
 if [ ! -d "$TARGET_DIR" ]; then
     echo "Error: Target directory '$TARGET_DIR' does not exist."
     exit 1

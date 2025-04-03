@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd /home/sketu/rising
+cd /home/arman/rising-ci
 
 rm -rf .repo/local_manifests
 rm -rf .repo/projects/device/$BRAND

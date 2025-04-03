@@ -1,6 +1,6 @@
 #!/bin/bash bash
 set -e
-cd /home/sketu/rising
+cd /home/arman/rising-ci
 
 source build/envsetup.sh
 

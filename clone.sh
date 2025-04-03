@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd /home/sketu/rising
+cd /home/arman/rising-ci
 
 log_file="cloned_repositories.txt"
 > "$log_file"
