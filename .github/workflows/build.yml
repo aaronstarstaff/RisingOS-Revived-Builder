@@ -146,13 +146,17 @@ jobs:
       TYPE: ${{ inputs.TYPE }}
       RELEASE: ${{ inputs.RELEASE }}
       VARIANT: ${{ inputs.VARIANT }}
-      SF_HOST: ${{ secrets.SF_HOST }}
-      SF_USERNAME: ${{ secrets.SF_USERNAME }}
-      SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+      BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+      USERNAME: ${{ github.actor }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Notify Build Start
+        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} started." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME"
 
       - name: Init and Sync
         run: bash resync.sh
@@ -167,24 +171,28 @@ jobs:
       - name: Build RisingOS
         run: bash build.sh
 
-      - name: Upload Error Log
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: error-log
-          path: out/error.log
-
-      - name: Upload Build JSON
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-json
-          path: out/target/product/*/*${{ inputs.CODENAME }}.json
-
-      - name: Upload Build Files
+      - name: Upload Build Files to Gofile
+        id: upload_files
         run: bash upload.sh
+
+      - name: Capture Gofile Links
+        if: ${{ steps.upload_files.outcome == 'success' }}
+        run: |
+          echo "GOFILE_LINKS=$(cat $GITHUB_ENV | grep -oE "https://gofile\.io/d/[A-Za-z0-9]+")" >> $GITHUB_OUTPUT
+        id: gofile_links
 
       - name: Post-Cleanup
         if: ${{ always() }}
         run: bash clean.sh
 
+      - name: Notify Build Success (Telegram)
+        if: ${{ success() }}
+        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} succeeded! ${{ steps.gofile_links.outputs.GOFILE_LINKS }}" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "✅"
+
+      - name: Notify Build Failure (Telegram)
+        if: ${{ failure() }}
+        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} failed." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "❌"
+
+      - name: Notify Build Cancelled
+        if: ${{ cancelled() }}
+        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} cancelled." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "❌"
