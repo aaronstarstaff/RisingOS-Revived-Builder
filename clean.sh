@@ -11,7 +11,6 @@ rm -rf .repo/projects/kernel/$BRAND
 rm -rf out/error*.log
 rm -rf out/target/product/$CODENAME
 rm -rf vendor/risingOTA
-rm -rf vendor/lineage-priv/keys/
 
 wipe_cloned_repositories() {
     local repositories_file="cloned_repositories.txt"

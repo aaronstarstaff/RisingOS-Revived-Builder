@@ -9,15 +9,6 @@ on:
       CODENAME:
         description: 'Put your device codename please.'
         required: true
-      SIGNING:
-        description: 'The build signing. Set to "normal" by default.'
-        required: true
-        default: 'normal'
-        type: choice
-        options:
-          - 'full'
-          - 'normal'
-          - 'normal-fastboot'
       TYPE:
         description: 'The build type. Set to "userdebug" by default.'
         required: true
@@ -27,17 +18,10 @@ on:
           - 'eng'
           - 'user'
           - 'userdebug'
-      RELEASE:
-        description: 'The build target. Set to "stable" by default.'
-        required: true
-        default: 'stable'
-        type: choice
-        options:
-          - 'stable'
       VARIANT:
         description: 'If you wanna build other variants like vanilla, core or gapps.'
         required: false
-        default: 'CORE'
+        default: 'VANILLA'
         type: choice
         options:
           - 'VANILLA'
@@ -49,7 +33,7 @@ permissions:
   contents: write
   statuses: write
 
-run-name: "RisingOS Build for ${{ inputs.BRAND }} ${{ inputs.CODENAME }} [${{ inputs.TYPE }}, ${{ inputs.RELEASE }} & ${{ inputs.VARIANT }}]"
+run-name: "RisingOS Build for ${{ inputs.BRAND }} ${{ inputs.CODENAME }} [${{ inputs.TYPE }} & ${{ inputs.VARIANT }}]"
 
 jobs:
   check-limit:
@@ -139,17 +123,14 @@ jobs:
     if: ${{ needs.check-limit.outputs.authorized == 'true' }}
     runs-on: self-hosted
     env:
-      USER: sketu
+      USERNAME: ${{ github.actor }}
       BRAND: ${{ inputs.BRAND }}
       CODENAME: ${{ inputs.CODENAME }}
-      SIGNING: ${{ inputs.SIGNING }}
       TYPE: ${{ inputs.TYPE }}
-      RELEASE: ${{ inputs.RELEASE }}
       VARIANT: ${{ inputs.VARIANT }}
       BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
-      USERNAME: ${{ github.actor }}
 
     steps:
       - name: Checkout code
