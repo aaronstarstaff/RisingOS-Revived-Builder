@@ -22,7 +22,11 @@ fi
 
 cd "$TARGET_DIR"
 
-ROM_GOFILE_LINKS=""  # Initialize an empty variable for ROM links
+ROM_GOFILE_LINKS=""
+BOOT_IMG_LINK=""
+DTBO_IMG_LINK=""
+VENDOR_BOOT_IMG_LINK=""
+RECOVERY_IMG_LINK=""
 
 FILES=(RisingOS_Revived*.zip)
 for FILE in "${FILES[@]}"; do
@@ -30,18 +34,36 @@ for FILE in "${FILES[@]}"; do
     echo "Error: File '$FILE' not found in $TARGET_DIR." >&2
     exit 1
   fi
-  echo "Attempting to upload $FILE to Gofile." >&2 # Print informational message to stderr
+  echo "Attempting to upload $FILE to Gofile." >&2
   GOFILE_LINK=$(upload_to_gofile "$FILE") || exit 1
-  ROM_GOFILE_LINKS="$ROM_GOFILE_LINKS $GOFILE_LINK"  # Use space as separator
+  ROM_GOFILE_LINKS="$ROM_GOFILE_LINKS $GOFILE_LINK"
 done
 
 IMAGES=("boot.img" "dtbo.img" "vendor_boot.img" "recovery.img")
 for IMAGE in "${IMAGES[@]}"; do
   if [ -e "$IMAGE" ]; then
-    echo "Attempting to upload $IMAGE to Gofile." >&2 # Print informational message to stderr
-    upload_to_gofile "$IMAGE" # We don't capture the link
+    echo "Attempting to upload $IMAGE to Gofile." >&2
+    IMAGE_LINK=$(upload_to_gofile "$IMAGE")
+    case "$IMAGE" in
+      "boot.img")
+        BOOT_IMG_LINK="$IMAGE_LINK"
+        ;;
+      "dtbo.img")
+        DTBO_IMG_LINK="$IMAGE_LINK"
+        ;;
+      "vendor_boot.img")
+        VENDOR_BOOT_IMG_LINK="$IMAGE_LINK"
+        ;;
+      "recovery.img")
+        RECOVERY_IMG_LINK="$IMAGE_LINK"
+        ;;
+    esac
   fi
 done
 
-echo "Upload process completed." >&2 # Print completion message to stderr
-echo "ROM_GOFILE_LINKS=${ROM_GOFILE_LINKS}" >> $GITHUB_ENV  # Export ROM links
+echo "Upload process completed." >&2
+echo "ROM_GOFILE_LINKS=${ROM_GOFILE_LINKS}" >> $GITHUB_ENV
+echo "BOOT_IMG_LINK=${BOOT_IMG_LINK}" >> $GITHUB_ENV
+echo "DTBO_IMG_LINK=${DTBO_IMG_LINK}" >> $GITHUB_ENV
+echo "VENDOR_BOOT_IMG_LINK=${VENDOR_BOOT_IMG_LINK}" >> $GITHUB_ENV
+echo "RECOVERY_IMG_LINK=${RECOVERY_IMG_LINK}" >> $GITHUB_ENV

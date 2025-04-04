@@ -159,7 +159,11 @@ jobs:
       - name: Capture Gofile Links
         if: ${{ steps.upload_files.outcome == 'success' }}
         run: |
-          echo "GOFILE_LINKS=$(cat $GITHUB_ENV | grep -oE "https://gofile\.io/d/[A-Za-z0-9]+")" >> $GITHUB_OUTPUT
+          echo "ROM_GOFILE_LINKS=$(cat $GITHUB_ENV | grep -oE "ROM_GOFILE_LINKS=[^ ]*")" >> $GITHUB_OUTPUT
+          echo "BOOT_IMG_LINK=$(cat $GITHUB_ENV | grep -oE "BOOT_IMG_LINK=[^ ]*")" >> $GITHUB_OUTPUT
+          echo "DTBO_IMG_LINK=$(cat $GITHUB_ENV | grep -oE "DTBO_IMG_LINK=[^ ]*")" >> $GITHUB_OUTPUT
+          echo "VENDOR_BOOT_IMG_LINK=$(cat $GITHUB_ENV | grep -oE "VENDOR_BOOT_IMG_LINK=[^ ]*")" >> $GITHUB_OUTPUT
+          echo "RECOVERY_IMG_LINK=$(cat $GITHUB_ENV | grep -oE "RECOVERY_IMG_LINK=[^ ]*")" >> $GITHUB_OUTPUT
         id: gofile_links
 
       - name: Post-Cleanup
@@ -168,7 +172,31 @@ jobs:
 
       - name: Notify Build Success (Telegram)
         if: ${{ success() }}
-        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} succeeded! ${{ steps.gofile_links.outputs.GOFILE_LINKS }}" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "✅"
+        run: |
+          MESSAGE="Build for ${{ inputs.CODENAME }} succeeded!"
+          ROM_LINK=$(echo "${{ steps.gofile_links.outputs.ROM_GOFILE_LINKS }}" | sed 's/^ROM_GOFILE_LINKS=//')
+          BOOT_LINK=$(echo "${{ steps.gofile_links.outputs.BOOT_IMG_LINK }}" | sed 's/^BOOT_IMG_LINK=//')
+          DTBO_LINK=$(echo "${{ steps.gofile_links.outputs.DTBO_IMG_LINK }}" | sed 's/^DTBO_IMG_LINK=//')
+          VENDOR_BOOT_LINK=$(echo "${{ steps.gofile_links.outputs.VENDOR_BOOT_IMG_LINK }}" | sed 's/^VENDOR_BOOT_IMG_LINK=//')
+          RECOVERY_LINK=$(echo "${{ steps.gofile_links.outputs.RECOVERY_IMG_LINK }}" | sed 's/^RECOVERY_IMG_LINK=//')
+
+          if [[ -n "$ROM_LINK" ]]; then
+            MESSAGE="$MESSAGE\nROM: $ROM_LINK"
+          fi
+          if [[ -n "$BOOT_LINK" ]]; then
+            MESSAGE="$MESSAGE\nBoot: $BOOT_LINK"
+          fi
+          if [[ -n "$DTBO_LINK" ]]; then
+            MESSAGE="$MESSAGE\nDTBO: $DTBO_LINK"
+          fi
+          if [[ -n "$VENDOR_BOOT_LINK" ]]; then
+            MESSAGE="$MESSAGE\nVendor Boot: $VENDOR_BOOT_LINK"
+          fi
+          if [[ -n "$RECOVERY_LINK" ]]; then
+            MESSAGE="$MESSAGE\nRecovery: $RECOVERY_LINK"
+          fi
+
+          bash telegram_notify.sh "$MESSAGE" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "✅"
 
       - name: Notify Build Failure (Telegram)
         if: ${{ failure() }}
