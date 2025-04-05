@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
 set -e
 
+# Uploads a file to Gofile and returns the download link
 upload_to_gofile() {
   local file="$1"
   SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
+  
+  # Attempt upload to Gofile and extract the download link
   LINK=$(curl -s -F "file=@$file" "https://${SERVER}.gofile.io/uploadFile" | jq -r '.data.downloadPage') 2>/dev/null
+  
+  # Check if the upload succeeded
   if [[ -n "$LINK" ]]; then
     echo "$LINK"  # Print ONLY the link to stdout
     return 0
   else
-    echo "Gofile Upload Failed for $file." >&2 # Print error to stderr
+    echo "Error: Gofile upload failed for $file." >&2
     return 1
   fi
 }
@@ -28,6 +33,7 @@ DTBO_IMG_LINK=""
 VENDOR_BOOT_IMG_LINK=""
 RECOVERY_IMG_LINK=""
 
+# Upload RisingOS .zip files
 FILES=(RisingOS_Revived*.zip)
 for FILE in "${FILES[@]}"; do
   if [ ! -e "$FILE" ]; then
@@ -39,11 +45,14 @@ for FILE in "${FILES[@]}"; do
   ROM_GOFILE_LINKS="$ROM_GOFILE_LINKS $GOFILE_LINK"
 done
 
+# Upload boot, dtbo, vendor_boot, recovery images if they exist
 IMAGES=("boot.img" "dtbo.img" "vendor_boot.img" "recovery.img")
 for IMAGE in "${IMAGES[@]}"; do
   if [ -e "$IMAGE" ]; then
     echo "Attempting to upload $IMAGE to Gofile." >&2
     IMAGE_LINK=$(upload_to_gofile "$IMAGE")
+    
+    # Store the link based on the image type
     case "$IMAGE" in
       "boot.img")
         BOOT_IMG_LINK="$IMAGE_LINK"
@@ -62,8 +71,11 @@ for IMAGE in "${IMAGES[@]}"; do
 done
 
 echo "Upload process completed." >&2
+
+# Save the links as GitHub Actions environment variables
 echo "ROM_GOFILE_LINKS=${ROM_GOFILE_LINKS}" >> $GITHUB_ENV
 echo "BOOT_IMG_LINK=${BOOT_IMG_LINK}" >> $GITHUB_ENV
 echo "DTBO_IMG_LINK=${DTBO_IMG_LINK}" >> $GITHUB_ENV
 echo "VENDOR_BOOT_IMG_LINK=${VENDOR_BOOT_IMG_LINK}" >> $GITHUB_ENV
 echo "RECOVERY_IMG_LINK=${RECOVERY_IMG_LINK}" >> $GITHUB_ENV
+

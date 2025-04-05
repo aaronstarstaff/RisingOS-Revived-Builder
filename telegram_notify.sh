@@ -25,15 +25,10 @@ if [ -n "$EMOJI" ]; then
     MESSAGE="$EMOJI $MESSAGE"
 fi
 
-if [ -n "$USERNAME" ]; then
-    MESSAGE="$MESSAGE (Triggered by: $USERNAME)"
-fi
-
-curl_command="curl -s -X POST \"https://api.telegram.org/bot$BOT_TOKEN/sendMessage\" -d chat_id=\"$CHAT_ID\" -d text=\"$MESSAGE\""
+curl_command="curl -s -X POST \"https://api.telegram.org/bot$BOT_TOKEN/sendMessage\" -d chat_id=\"$CHAT_ID\" -d text=\"$MESSAGE\" -d disable_web_page_preview=true -d parse_mode=Markdown"
 
 if [ -n "$THREAD_ID" ]; then
     curl_command="$curl_command -d message_thread_id=\"$THREAD_ID\""
 fi
 
 eval "$curl_command"
-

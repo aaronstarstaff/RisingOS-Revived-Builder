@@ -123,7 +123,6 @@ jobs:
     if: ${{ needs.check-limit.outputs.authorized == 'true' }}
     runs-on: self-hosted
     env:
-      USERNAME: ${{ github.actor }}
       BRAND: ${{ inputs.BRAND }}
       CODENAME: ${{ inputs.CODENAME }}
       TYPE: ${{ inputs.TYPE }}
@@ -136,8 +135,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get Job ID
+        uses: austenstone/job-id@v1
+        id: get_job_id
+
       - name: Notify Build Start
-        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} started." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME"
+        run: |
+          WORKFLOW_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE1="🚀 Build for ${{ inputs.CODENAME }} started!
+          Workflow: [link](${WORKFLOW_RUN_URL})
+          (Triggered by: ${{ github.actor }})"
+
+
+          bash telegram_notify.sh "$MESSAGE1" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
 
       - name: Init and Sync
         run: bash resync.sh
@@ -173,35 +183,25 @@ jobs:
       - name: Notify Build Success (Telegram)
         if: ${{ success() }}
         run: |
-          MESSAGE="Build for ${{ inputs.CODENAME }} succeeded!"
-          ROM_LINK=$(echo "${{ steps.gofile_links.outputs.ROM_GOFILE_LINKS }}" | sed 's/^ROM_GOFILE_LINKS=//')
-          BOOT_LINK=$(echo "${{ steps.gofile_links.outputs.BOOT_IMG_LINK }}" | sed 's/^BOOT_IMG_LINK=//')
-          DTBO_LINK=$(echo "${{ steps.gofile_links.outputs.DTBO_IMG_LINK }}" | sed 's/^DTBO_IMG_LINK=//')
-          VENDOR_BOOT_LINK=$(echo "${{ steps.gofile_links.outputs.VENDOR_BOOT_IMG_LINK }}" | sed 's/^VENDOR_BOOT_IMG_LINK=//')
-          RECOVERY_LINK=$(echo "${{ steps.gofile_links.outputs.RECOVERY_IMG_LINK }}" | sed 's/^RECOVERY_IMG_LINK=//')
+          RUN_ID="${{ github.run_id }}"
+          JOB_ID="${{ steps.get_job_id.outputs.job-id }}"
+          STEP_NUMBER="10"
 
-          if [[ -n "$ROM_LINK" ]]; then
-            MESSAGE="$MESSAGE\nROM: $ROM_LINK"
-          fi
-          if [[ -n "$BOOT_LINK" ]]; then
-            MESSAGE="$MESSAGE\nBoot: $BOOT_LINK"
-          fi
-          if [[ -n "$DTBO_LINK" ]]; then
-            MESSAGE="$MESSAGE\nDTBO: $DTBO_LINK"
-          fi
-          if [[ -n "$VENDOR_BOOT_LINK" ]]; then
-            MESSAGE="$MESSAGE\nVendor Boot: $VENDOR_BOOT_LINK"
-          fi
-          if [[ -n "$RECOVERY_LINK" ]]; then
-            MESSAGE="$MESSAGE\nRecovery: $RECOVERY_LINK"
-          fi
-
-          bash telegram_notify.sh "$MESSAGE" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "✅"
+          LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${STEP_NUMBER}:17"
+          MESSAGE2="✅ Build for ${{ inputs.CODENAME }} succeeded!
+          🔗 Download Links: [link](${LOG_LINK})"
+         
+          bash telegram_notify.sh "$MESSAGE2" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
 
       - name: Notify Build Failure (Telegram)
         if: ${{ failure() }}
-        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} failed." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "❌"
+        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} failed." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "❌"
 
       - name: Notify Build Cancelled
         if: ${{ cancelled() }}
-        run: bash telegram_notify.sh "Build for ${{ inputs.CODENAME }} cancelled." "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID" "$USERNAME" "❌"
+        run: |
+          MESSAGE3="🚫 Build for ${{ inputs.CODENAME }} is cancelled!
+          Workflow: [link](${WORKFLOW_RUN_URL})"
+
+          bash telegram_notify.sh "$MESSAGE3" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
+
