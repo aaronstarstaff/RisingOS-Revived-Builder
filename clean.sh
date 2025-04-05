@@ -21,11 +21,20 @@ nuke_rising_dependencies() {
   if [[ -f "$device_specific_dependencies" ]]; then
     echo "Found initial device-specific dependencies: $device_specific_dependencies"
     initial_dependencies_file="$device_specific_dependencies"
+  # 2. Check in device/$BRAND/ folder
+  elif [[ -f "device/$BRAND/rising.dependencies" ]]; then
+    echo "Found initial device/$BRAND/ dependencies: device/$BRAND/rising.dependencies"
+    initial_dependencies_file="device/$BRAND/rising.dependencies"
+  # 3. Check in the top-level device/ folder
+  elif [[ -f "device/rising.dependencies" ]]; then
+    echo "Found initial top-level device/ dependencies: device/rising.dependencies"
+    initial_dependencies_file="device/rising.dependencies"
+  # 4. Fallback to root directory
   elif [[ -f "rising.dependencies" ]]; then
     echo "Found initial primary dependencies: rising.dependencies"
     initial_dependencies_file="rising.dependencies"
   else
-    echo "Error: No initial rising.dependencies file found in device/$BRAND/$CODENAME or the root directory." >&2
+    echo "Error: No initial rising.dependencies file found in device/$BRAND/$CODENAME/, device/$BRAND/, device/, or the root directory." >&2
     return 1
   fi
 
@@ -58,7 +67,8 @@ nuke_rising_dependencies() {
           rm -rf "$full_path"
           # Remove associated .repo project
           local repo_base_path=".repo/project"
-          local repo_path="$repo_base_path/$(echo "$path" | sed 's/\//./g').git"
+          local repo_path="$repo_base_path/$(echo "$path" | sed 's/\//_/g').git"
+
           if [[ -d "$repo_path" ]]; then
             echo "Removing .repo project: $repo_path"
             rm -rf "$repo_path"
