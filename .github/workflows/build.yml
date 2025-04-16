@@ -189,7 +189,7 @@ jobs:
           JOB_ID="${{ steps.get_job_id.outputs.job-id }}"
           STEP_NUMBER="10"
 
-          LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${STEP_NUMBER}:17"
+          LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${STEP_NUMBER}:16"
           MESSAGE2="✅ Build for ${{ inputs.CODENAME }} succeeded!
           🔗 Download Links: [link](${LOG_LINK})"
          
