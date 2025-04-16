@@ -9,9 +9,8 @@ rm -rf .repo/projects/device/$BRAND
 rm -rf .repo/projects/vendor/$BRAND
 rm -rf .repo/projects/vendor/risingOTA.git
 rm -rf .repo/projects/kernel/$BRAND
-rm -rf out/error*.log
-rm -rf out/target/product/$CODENAME
 rm -rf vendor/risingOTA
+rm -rf out
 
 nuke_rising_dependencies() {
   local initial_dependencies_file=""
