@@ -224,9 +224,9 @@ jobs:
         run: |
           RUN_ID="${{ github.run_id }}"
           JOB_ID="${{ steps.get_job_id.outputs.job-id }}"
-          ERROR_STEP_NUMBER="15"
+          ERROR_STEP_NUMBER="17"
 
-          ERROR_LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${ERROR_STEP_NUMBER}:20"
+          ERROR_LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${ERROR_STEP_NUMBER}:22"
           MESSAGE3="❌ Build for ${{ inputs.CODENAME }} failed.
           🔗 Download error.log: [link](${ERROR_LOG_LINK})
           ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
