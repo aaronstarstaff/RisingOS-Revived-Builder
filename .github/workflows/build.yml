@@ -132,6 +132,10 @@ jobs:
       THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
 
     steps:
+      - name: Set Start Time
+        id: start_time
+        run: echo "BUILD_START_TIME=$(date +%s)" >> "$GITHUB_ENV"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -143,8 +147,7 @@ jobs:
         run: bash resync.sh
 
       - name: Clone Repositories
-        run: |
-          bash clone.sh
+        run: bash clone.sh
 
       - name: Set flags
         run: bash misc/flags.sh
@@ -182,6 +185,26 @@ jobs:
         if: ${{ always() }}
         run: bash clean.sh
 
+      - name: Set End Time
+        id: end_time
+        if: always()
+        run: echo "BUILD_END_TIME=$(date +%s)" >> "$GITHUB_ENV"
+
+      - name: Calculate Duration
+        id: calculate_duration
+        if: always()
+        run: |
+          start_time="${{ env.BUILD_START_TIME }}"
+          end_time="${{ env.BUILD_END_TIME }}"
+          duration_seconds=$((end_time - start_time))
+          duration=$(echo "$duration_seconds" | awk '{
+            h = int($1 / 3600);
+            m = int(($1 % 3600) / 60);
+            s = $1 % 60;
+            printf "%02d:%02d:%02d", h, m, s;
+          }')
+          echo "BUILD_DURATION=$duration" >> "$GITHUB_ENV"
+
       - name: Notify Build Success (Telegram)
         if: ${{ success() }}
         run: |
@@ -191,7 +214,8 @@ jobs:
 
           LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${STEP_NUMBER}:16"
           MESSAGE2="✅ Build for ${{ inputs.CODENAME }} succeeded!
-          🔗 Download Links: [link](${LOG_LINK})"
+          🔗 Download Links: [link](${LOG_LINK})
+          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
          
           bash telegram_notify.sh "$MESSAGE2" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
 
@@ -204,7 +228,8 @@ jobs:
 
           ERROR_LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${ERROR_STEP_NUMBER}:20"
           MESSAGE3="❌ Build for ${{ inputs.CODENAME }} failed.
-          🔗 Download error.log: [link](${ERROR_LOG_LINK})"
+          🔗 Download error.log: [link](${ERROR_LOG_LINK})
+          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
 
           bash telegram_notify.sh "$MESSAGE3" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
 
@@ -212,7 +237,8 @@ jobs:
         if: ${{ cancelled() }}
         run: |
           MESSAGE4="🚫 Build for ${{ inputs.CODENAME }} is cancelled!
-          Workflow: [link](${WORKFLOW_RUN_URL})"
+          Workflow: [link](${WORKFLOW_RUN_URL})
+          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
 
           bash telegram_notify.sh "$MESSAGE4" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
 
