@@ -139,16 +139,6 @@ jobs:
         uses: austenstone/job-id@v1
         id: get_job_id
 
-      - name: Notify Build Start
-        run: |
-          WORKFLOW_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          MESSAGE1="🚀 Build for ${{ inputs.CODENAME }} started!
-          Workflow: [link](${WORKFLOW_RUN_URL})
-          (Triggered by: ${{ github.actor }})"
-
-
-          bash telegram_notify.sh "$MESSAGE1" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
-
       - name: Init and Sync
         run: bash resync.sh
 
