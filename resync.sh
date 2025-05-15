@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-WORKDIR="/home/arman/rising-ci"
+WORKDIR="/home/runner/rising-ci"
 OUTPUT_FILE="/tmp/repo_sync_output.txt"
 DELETED_REPOS_FILE="$WORKDIR/deleted_repositories.txt"
 STABLE_REPO_URL="https://github.com/RisingOS-Revived/android"
