@@ -28,11 +28,13 @@ on:
           - 'CORE'
           - 'GAPPS'
 
+
 permissions:
   actions: write
   contents: write
   statuses: write
 
+jobs:
 
   build:
     needs: check-limit
