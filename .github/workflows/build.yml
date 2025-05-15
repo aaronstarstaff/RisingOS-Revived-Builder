@@ -111,40 +111,4 @@ jobs:
           }')
           echo "BUILD_DURATION=$duration" >> "$GITHUB_ENV"
 
-      - name: Notify Build Success (Telegram)
-        if: ${{ success() }}
-        run: |
-          RUN_ID="${{ github.run_id }}"
-          JOB_ID="${{ steps.get_job_id.outputs.job-id }}"
-          STEP_NUMBER="10"
-
-          LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${STEP_NUMBER}:16"
-          MESSAGE2="✅ Build for ${{ inputs.CODENAME }} succeeded!
-          🔗 Download Links: [link](${LOG_LINK})
-          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
-         
-          bash telegram_notify.sh "$MESSAGE2" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
-
-      - name: Notify Build Failure (Telegram)
-        if: ${{ failure() }}
-        run: |
-          RUN_ID="${{ github.run_id }}"
-          JOB_ID="${{ steps.get_job_id.outputs.job-id }}"
-          ERROR_STEP_NUMBER="17"
-
-          ERROR_LOG_LINK="https://github.com/${{ github.repository }}/actions/runs/${RUN_ID}/job/${JOB_ID}#step:${ERROR_STEP_NUMBER}:22"
-          MESSAGE3="❌ Build for ${{ inputs.CODENAME }} failed.
-          🔗 Download error.log: [link](${ERROR_LOG_LINK})
-          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
-
-          bash telegram_notify.sh "$MESSAGE3" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
-
-      - name: Notify Build Cancelled
-        if: ${{ cancelled() }}
-        run: |
-          MESSAGE4="🚫 Build for ${{ inputs.CODENAME }} is cancelled!
-          Workflow: [link](${WORKFLOW_RUN_URL})
-          ⏱️ Build Time: ${{ env.BUILD_DURATION }}"
-
-          bash telegram_notify.sh "$MESSAGE4" "$BOT_TOKEN" "$CHAT_ID" "$THREAD_ID"
-
+    
