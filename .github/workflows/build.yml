@@ -33,12 +33,11 @@ permissions:
   actions: write
   contents: write
   statuses: write
+
 jobs:
   build:
-
-runs-on: ubuntu-latest
-
-  steps:
+    runs-on: ubuntu-latest
+    steps:
       - name: Set Start Time
         id: start_time
         run: echo "BUILD_START_TIME=$(date +%s)" >> "$GITHUB_ENV"
