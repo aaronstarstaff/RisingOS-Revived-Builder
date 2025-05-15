@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-TARGET_DIR="/home/arman/rising-ci/out"
+TARGET_DIR="/home/runner/rising-ci/out"
 
 # Uploads a file to Gofile and returns the download link
 upload_to_gofile() {
