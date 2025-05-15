@@ -34,10 +34,9 @@ permissions:
   contents: write
   statuses: write
 
-
-
-  build:
 jobs:
+
+  build: runs-on:ubuntu-latest
 
     steps:
       - name: Set Start Time
