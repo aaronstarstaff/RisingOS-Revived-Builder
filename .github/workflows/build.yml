@@ -34,20 +34,10 @@ permissions:
   contents: write
   statuses: write
 
-jobs:
+
 
   build:
-    needs: check-limit
-    if: ${{ needs.check-limit.outputs.authorized == 'true' }}
-    runs-on: self-hosted
-    env:
-      BRAND: ${{ inputs.BRAND }}
-      CODENAME: ${{ inputs.CODENAME }}
-      TYPE: ${{ inputs.TYPE }}
-      VARIANT: ${{ inputs.VARIANT }}
-      BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      THREAD_ID: ${{ secrets.TELEGRAM_THREAD_ID }}
+jobs:
 
     steps:
       - name: Set Start Time
