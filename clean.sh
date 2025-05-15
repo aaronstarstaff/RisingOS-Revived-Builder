@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd /home/arman/rising-ci
+cd /home/runner/rising-ci
 
 # Remove specific directories
 rm -rf .repo/local_manifests
