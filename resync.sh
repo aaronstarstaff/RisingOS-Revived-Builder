@@ -62,6 +62,7 @@ perform_sync() {
 }
 
 main() {
+    mkdir "$WORKDIR"
     cd "$WORKDIR" || exit 1
     
     : > "$OUTPUT_FILE"
