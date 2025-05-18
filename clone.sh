@@ -143,8 +143,8 @@ function clone_and_check_dependencies {
 }
 
 function main {
-  local primary_repo_url="https://github.com/RisingOS-Revived/device_${BRAND}_${CODENAME}.git"
-  local fallback_repo_url="https://github.com/LineageOS/android_device_${BRAND}_${CODENAME}.git"
+  local primary_repo_url="https://github.com/RisingOS-Revived/device_google_panther.git"
+  local fallback_repo_url="https://github.com/LineageOS/android_device_google_panther.git"
 
   if repo_exists "$primary_repo_url"; then
     clone_and_check_dependencies "$primary_repo_url" "device/$BRAND/$CODENAME"
