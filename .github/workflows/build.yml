@@ -45,18 +45,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get Job ID
-        uses: austenstone/job-id@v1
-        id: get_job_id
-
-      - name: Init and Sync
-        run: bash resync.sh
-
       - name: Clone Repositories
         run: bash clone.sh
 
       - name: Set flags
         run: bash misc/flags.sh
+
+      - name: Repo Sync
+        run: bash resync.sh
 
       - name: Build RisingOS
         run: bash build.sh
