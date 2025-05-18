@@ -45,13 +45,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Repo Sync
+        run: bash resync.sh
+
       - name: Clone Repositories
         run: bash clone.sh
 
       - name: Set flags
         run: bash misc/flags.sh
 
-      - name: Repo Sync
+      - name: Repo Sync Again
         run: bash resync.sh
 
       - name: Build RisingOS
