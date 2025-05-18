@@ -54,9 +54,6 @@ jobs:
       - name: Set flags
         run: bash misc/flags.sh
 
-      - name: Repo Sync Again
-        run: bash resync.sh
-
       - name: Build RisingOS
         run: bash build.sh
 
