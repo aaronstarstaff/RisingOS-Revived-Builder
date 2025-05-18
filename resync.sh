@@ -31,6 +31,7 @@ update_repo_tool() {
 sync_repos() {
     log "Syncing repositories..."
     find "$WORKDIR/.repo" -name '*.lock' -delete
+    sudo apt install git repo python3 python3-pip
     repo sync -c -j12 --force-sync --no-clone-bundle --no-tags --prune
     log "repo sync completed successfully"
 }
