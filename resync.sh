@@ -19,12 +19,6 @@ update_repo_tool() {
     fi
 }
 
-#init_repo() {
-#    repo init -u "$init_url" -b fifteen --git-lfs --depth=1 >> "$OUTPUT_FILE" 2>&1 || {
-#       log "Error: repo init failed. Check $OUTPUT_FILE for details."
-#       exit 1
-}
-
 sync_repos() 
     sudo apt install git repo python3 python3-pip
     log "Syncing repositories..."
