@@ -20,8 +20,8 @@ update_repo_tool() {
 }
 
 sync_repos() 
-    sudo apt install git repo python3 python3-pip
     log "Syncing repositories..."
+    sudo apt install git repo python3 python3-pip
     find "$WORKDIR/.repo" -name '*.lock' -delete
     repo init -u https://github.com/RisingOS-Revived/android
     repo sync -c -j12 --force-sync --no-clone-bundle --no-tags --prune
